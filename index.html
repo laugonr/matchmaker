@@ -4,38 +4,160 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cupid Matchmaker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: #fff0f6;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #d6336c;
+        }
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <h1>❤️🥰 Cupid Matchmaker ❤️🥰</h1>
-    <p>Answer the following questions by selecting how much you agree or disagree.</p>
+    <p>Answer the following questions by selecting how much you agree or disagree. We'll calculate your compatibility score based on how closely your answers match our ideal ones!</p>
 
     <form id="quizForm">
-        <label>1. I enjoy long walks on the beach:</label><br>
-        <select name="q1" required>
-            <option value="">-- Select an answer --</option>
-            <option value="1">Strongly Disagree</option>
-            <option value="2">Disagree</option>
-            <option value="3">Neither</option>
-            <option value="4">Agree</option>
-            <option value="5">Strongly Agree</option>
-        </select><br><br>
+        <div class="question">
+            <label>1. I enjoy long walks on the beach:</label>
+            <select name="q1" required>
+                <option value="">-- Select an answer --</option>
+                <option value="1">Strongly Disagree</option>
+                <option value="2">Disagree</option>
+                <option value="3">Neither</option>
+                <option value="4">Agree</option>
+                <option value="5">Strongly Agree</option>
+            </select>
+        </div>
 
-        <label>2. I prefer cats over dogs:</label><br>
-        <select name="q2" required>
-            <option value="">-- Select an answer --</option>
-            <option value="1">Strongly Disagree</option>
-            <option value="2">Disagree</option>
-            <option value="3">Neither</option>
-            <option value="4">Agree</option>
-            <option value="5">Strongly Agree</option>
-        </select><br><br>
+        <div class="question">
+            <label>2. I prefer cats over dogs:</label>
+            <select name="q2" required>
+                <option value="">-- Select an answer --</option>
+                <option value="1">Strongly Disagree</option>
+                <option value="2">Disagree</option>
+                <option value="3">Neither</option>
+                <option value="4">Agree</option>
+                <option value="5">Strongly Agree</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label>3. I love pineapple on pizza:</label>
+            <select name="q3" required>
+                <option value="">-- Select an answer --</option>
+                <option value="1">Strongly Disagree</option>
+                <option value="2">Disagree</option>
+                <option value="3">Neither</option>
+                <option value="4">Agree</option>
+                <option value="5">Strongly Agree</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label>4. I would rather stay in than go out:</label>
+            <select name="q4" required>
+                <option value="">-- Select an answer --</option>
+                <option value="1">Strongly Disagree</option>
+                <option value="2">Disagree</option>
+                <option value="3">Neither</option>
+                <option value="4">Agree</option>
+                <option value="5">Strongly Agree</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label>5. I believe in love at first sight:</label>
+            <select name="q5" required>
+                <option value="">-- Select an answer --</option>
+                <option value="1">Strongly Disagree</option>
+                <option value="2">Disagree</option>
+                <option value="3">Neither</option>
+                <option value="4">Agree</option>
+                <option value="5">Strongly Agree</option>
+            </select>
+        </div>
 
         <button type="submit">Submit</button>
     </form>
 
-    <p id="compatibilityScore"></p>
+    <div id="results" class="result"></div>
 
+    <script>
+        const IDEAL_ANSWERS = [5, 3, 2, 4, 5];
+        const THRESHOLDS = {
+            trueLove: 85,
+            friends: 65
+        };
+
+        function validate(answers) {
+            for (let i = 0; i < answers.length; i++) {
+                if (isNaN(answers[i]) || answers[i] < 1 || answers[i] > 5) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        document.getElementById('quizForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const form = new FormData(this);
+            const userAnswers = [
+                parseInt(form.get('q1')),
+                parseInt(form.get('q2')),
+                parseInt(form.get('q3')),
+                parseInt(form.get('q4')),
+                parseInt(form.get('q5'))
+            ];
+
+            if (!validate(userAnswers)) {
+                alert("Please answer all questions with valid values between 1 and 5.");
+                return;
+            }
+
+            let breakdown = "<h3>Compatibility Breakdown:</h3><ul>";
+            let totalDifference = 0;
+
+            for (let i = 0; i < IDEAL_ANSWERS.length; i++) {
+                const diff = Math.abs(IDEAL_ANSWERS[i] - userAnswers[i]);
+                breakdown += `<li>Question ${i + 1}: ${5 - diff}/5 compatibility</li>`;
+                totalDifference += diff;
+            }
+
+            const score = 100 - totalDifference * 5;
+            let message = "";
+            if (score >= THRESHOLDS.trueLove) {
+                message = "💖 True love! You're a perfect match! 💖";
+            } else if (score >= THRESHOLDS.friends) {
+                message = "😊 You'd make great friends! 😊";
+            } else {
+                message = "😬 Uh oh... maybe not a match 😬";
+            }
+
+            breakdown += `</ul><p><strong>Overall Score:</strong> ${score}%</p><p>${message}</p>`;
+            document.getElementById('results').innerHTML = breakdown;
+        });
     </script>
-    
 </body>
 </html>
